@@ -5,9 +5,9 @@
     <title><?php if(!empty($site_name)){ echo $site_name; } ?> | <?php echo $title; ?></title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content='width=device-width, initial-scale=0.9, minimum-scale=0.1, maximum-scale=10, user-scalable=yes' name='viewport'>
-	<meta name="description" content="Aplikasi Ujian Online SMPN 16 DEPOK">
-	<meta name="keywords" content="Aplikasi Ujian Online SMPN 16 DEPOK">
-	<meta name="author" content="UPTD SMPN 16 DEPOK">
+	<meta name="description" content="Aplikasi Ujian Online SMPN 9 DEPOK">
+	<meta name="keywords" content="Aplikasi Ujian Online SMPN 9 DEPOK">
+	<meta name="author" content="UPTD SMPN 9 DEPOK">
     <!-- Bootstrap 3.3.4 -->
     <link href="<?php echo base_url(); ?>public/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <!-- Font Awesome Icons -->
@@ -152,7 +152,7 @@
           <?php if(!empty($nama)){ echo $nama; } ?> | <strong> <a href="<?php echo site_url(); ?>/welcome/logout" >Log out</a></strong>
         </div>
         <div class="container">
-          <strong>&copy; 2022 | UPTD SMPN 16 DEPOK</strong>
+          <strong>&copy; 2022 | UPTD SMPN 9 DEPOK</strong>
         </div><!-- /.container -->
       </footer>
     </div><!-- ./wrapper -->
