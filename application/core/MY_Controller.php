@@ -11,7 +11,8 @@ class Member_Controller extends CI_Controller{
 		if(!$this->access->is_login()){
 			// diredirect ke bagian login
 			redirect('manager/welcome');
-		}
+		}		
+        $this->db2 = $this->load->database('database_kedua', TRUE);
 	}
 	
 	function is_login(){

@@ -11,6 +11,7 @@ class Peserta_group extends Member_Controller {
 		$this->load->model('cbt_tesgrup_model');
 
 		parent::cek_akses($this->kode_menu);
+        $this->db2 = $this->load->database('database_kedua', TRUE);
 	}
 	
     public function index(){
@@ -27,6 +28,7 @@ class Peserta_group extends Member_Controller {
         
         if($this->form_validation->run() == TRUE){
             $data['grup_nama'] = $this->input->post('tambah-group', true);
+            $data['kelas_id'] = $this->input->post('tambah-kelas', true);
 
             if($this->cbt_user_grup_model->count_by_kolom('grup_nama', $data['grup_nama'])->row()->hasil>0){
                 $status['status'] = 0;
@@ -54,6 +56,7 @@ class Peserta_group extends Member_Controller {
 				$data['data'] = 1;
 				$data['id'] = $query->grup_id;
 				$data['group'] = $query->grup_nama;
+				$data['kelas_id'] = $query->kelas_id;
 			}
 		}
 		echo json_encode($data);
@@ -83,6 +86,7 @@ class Peserta_group extends Member_Controller {
             }else if($pilihan=='simpan'){//simpan
 				$group_asli = $this->input->post('edit-group-asli', true);
                 $data['grup_nama'] = $this->input->post('edit-group', true);
+                $data['kelas_id'] = $this->input->post('edit-kelas', true);
 
                 if($group_asli!=$data['grup_nama']){
                 	if($this->cbt_user_grup_model->count_by_kolom('grup_nama', $data['grup_nama'])->row()->hasil>0){
@@ -144,6 +148,8 @@ class Peserta_group extends Member_Controller {
             
 			$record[] = ++$i;
             $record[] = $temp->grup_nama;
+			if($temp->kelas_id>0){$validasi = '<span style="color: green;">Validated</span>';}else{$validasi='';}
+            $record[] = $validasi;
             $record[] = '<a onclick="edit(\''.$temp->grup_id.'\')" style="cursor: pointer;" class="btn btn-default btn-xs">Edit</a>';
 
 			$output['aaData'][] = $record;
