@@ -121,6 +121,8 @@ class Tes_tambah extends Member_Controller {
         $this->form_validation->set_rules('tambah-poin', 'Poin Dasar','required|numeric|strip_tags');
         $this->form_validation->set_rules('tambah-poin-salah', 'Poin Jawaban Salah','required|numeric|strip_tags');
         $this->form_validation->set_rules('tambah-poin-kosong', 'Poin Jawaban Kosong','required|numeric|strip_tags');
+        $this->form_validation->set_rules('tambah-semester', 'Semester','required|strip_tags');
+        $this->form_validation->set_rules('tambah-sumatif', 'Sumatif','required|strip_tags');
         
         if($this->form_validation->run() == TRUE){
         	$tes_id = $this->input->post('tambah-id', true);
@@ -130,7 +132,8 @@ class Tes_tambah extends Member_Controller {
             $data['tes_duration_time'] = $this->input->post('tambah-waktu', true);
             $data['tes_score_right'] = $this->input->post('tambah-poin', true);
             $data['tes_score_wrong'] = $this->input->post('tambah-poin-salah', true);
-            $data['tes_score_unanswered'] = $this->input->post('tambah-poin-kosong', true);
+            $data['nilai_semester'] = $this->input->post('tambah-semester', true);
+            $data['sumatif_id'] = $this->input->post('tambah-sumatif', true);
 
             $tunjukkan_hasil = $this->input->post('tambah-tunjukkan-hasil', true);
             if(!empty($tunjukkan_hasil)){
@@ -355,6 +358,8 @@ class Tes_tambah extends Member_Controller {
                 $data['detail_hasil'] = $query->tes_detail_to_users;
 	            $data['token'] = $query->tes_token;
 	            $data['rentang_waktu'] = $query->tes_begin_time.' - '.$query->tes_end_time;
+                $data['nilai_semester'] = $query->nilai_semester;
+                $data['sumatif_id'] = $query->sumatif_id;
 			}
 		}
 		echo json_encode($data);

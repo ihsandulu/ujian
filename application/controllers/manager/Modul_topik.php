@@ -50,22 +50,16 @@ class Modul_topik extends Member_Controller
 
 		$this->form_validation->set_rules('tambah-topik', 'Nama Topik', 'required|strip_tags');
 		$this->form_validation->set_rules('tambah-matpel', 'Mata Pelajaran', 'required|strip_tags');
-		$this->form_validation->set_rules('tambah-semester', 'Semester', 'required|strip_tags');
-		$this->form_validation->set_rules('tambah-kelas', 'Kelas', 'required|strip_tags');
 		$this->form_validation->set_rules('tambah-modul-id', 'ID Modul', 'required|strip_tags');
 		$this->form_validation->set_rules('tambah-deskripsi', 'Deskripsi', 'required|strip_tags');
 		$this->form_validation->set_rules('tambah-status', 'Status', 'required|strip_tags');
-		$this->form_validation->set_rules('tambah-sumatif', 'Sumatif', 'required|strip_tags');
 
 		if ($this->form_validation->run() == TRUE) {
 			$data['topik_modul_id'] = $this->input->post('tambah-modul-id', true);
 			$data['topik_nama'] = $this->input->post('tambah-topik', true);
 			$data['matpel_id'] = $this->input->post('tambah-matpel', true);
-			$data['nilai_semester'] = $this->input->post('tambah-semester', true);
-			$data['kelas_id'] = $this->input->post('tambah-kelas', true);
 			$data['topik_detail'] = $this->input->post('tambah-deskripsi', true);
 			$data['topik_aktif'] = 1;
-			$data['sumatif_id'] = $this->input->post('tambah-sumatif', true);
 
 			//if($this->cbt_topik_model->count_by_kolom('topik_nama', $data['topik_nama'])->row()->hasil>0){
 			if ($this->cbt_topik_model->count_by_topik_modul($data['topik_nama'], $data['topik_modul_id'])->row()->hasil > 0) {
@@ -101,11 +95,8 @@ class Modul_topik extends Member_Controller
 				$data['modul_id'] = $row->topik_modul_id;
 				$data['topik'] = $row->topik_nama;
 				$data['matpel'] = $row->matpel_id;
-				$data['kelas'] = $row->kelas_id;
-				$data['semester'] = $row->nilai_semester;
 				$data['deskripsi'] = $row->topik_detail;
 				$data['status'] = $row->topik_aktif;
-				$data['sumatif'] = $row->sumatif_id;
 			}
 		}
 
@@ -173,15 +164,10 @@ class Modul_topik extends Member_Controller
 		$this->form_validation->set_rules('edit-modul-id', 'ID Modul', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-topik', 'Nama Topik', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-matpel', 'Mata Pelajaran', 'required|strip_tags');
-		$this->form_validation->set_rules('edit-kelas', 'Kelas', 'required|strip_tags');
-		$this->form_validation->set_rules('edit-semester', 'Semester', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-matpel', 'Mata Pelajaran', 'required|strip_tags');
-		$this->form_validation->set_rules('edit-semester', 'Semester', 'required|strip_tags');
-		$this->form_validation->set_rules('edit-kelas', 'Kelas', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-deskripsi', 'Deskripsi', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-pilihan', 'Pilihan', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-topik-asli', 'Nama Topik', 'required|strip_tags');
-		$this->form_validation->set_rules('edit-sumatif', 'Sumatif', 'required|strip_tags');
 
 		if ($this->form_validation->run() == TRUE) {
 			$pilihan = $this->input->post('edit-pilihan', true);
@@ -212,11 +198,8 @@ class Modul_topik extends Member_Controller
 			} else if ($pilihan == 'simpan') { //simpan
 				$topik_asli = $this->input->post('edit-topik-asli', true);
 				$data['matpel_id'] = $this->input->post('edit-matpel', true);
-				$data['kelas_id'] = $this->input->post('edit-kelas', true);
-				$data['nilai_semester'] = $this->input->post('edit-semester', true);
 				$data['topik_nama'] = $this->input->post('edit-topik', true);
 				$data['topik_detail'] = $this->input->post('edit-deskripsi', true);
-				$data['sumatif_id'] = $this->input->post('edit-sumatif', true);
 
 				if ($topik_asli != $data['topik_nama']) {
 					//if($this->cbt_topik_model->count_by_kolom('topik_nama', $data['topik_nama'])->row()->hasil>0){
@@ -283,35 +266,8 @@ class Modul_topik extends Member_Controller
 			$record[] = ++$i;
 
 			$jml_soal = $this->cbt_soal_model->count_by_kolom('soal_topik_id', $temp->topik_id)->row()->hasil;
-			if ($temp->nilai_semester == 1) {
-				$sem = "Sem.Ganjil";
-			} else if ($temp->nilai_semester == 2) {
-				$sem = "Sem.Genap";
-			} else {
-				$sem = "";
-			}
-
-			if ($temp->sumatif_id == 100) {
-				$sum = "Tengah Semester";
-			} else if ($temp->sumatif_id == 101) {
-				$sum = "Akhir Semester";
-			} else {
-				$this->db2->select('sumatif_name')
-					->from('sumatif')
-					->where('sumatif_id', $temp->sumatif_id);
-				$sum = "";
-				foreach ($this->db2->get()->result() as $row) {
-					$sum = $row->sumatif_name;
-				}
-			}
-			$this->db2->select('kelas_name')
-				->from('kelas')
-				->where('kelas_id', $temp->kelas_id);
-			$kelasname = "";
-			foreach ($this->db2->get()->result() as $row) {
-				$kelasname = $row->kelas_name;
-			}
-			$record[] = $temp->topik_nama . " " . $sem . " " . $sum . " " . $kelasname;
+			
+			$record[] = $temp->topik_nama ;
 			if ($temp->matpel_id > 0) {
 				$validasi = '<span class="label label-success">Validated</span>';
 			} else {

@@ -99,49 +99,7 @@
                     <div class="row-fluid">
                         <div class="box-body">
                             <div id="form-pesan"></div>
-                            <div class="form-group">
-                                <label>Semester</label>
-                                <select class="form-control" id="tambah-semester" name="tambah-semester">
-                                    <option value="1">Ganjil</option>
-                                    <option value="2">Genap</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Sumatif</label>
-                                <select class="form-control" id="tambah-sumatif" name="tambah-sumatif">
-                                    <option value="">Choose Sumatif</option>
-                                    <option value="100">Tengah Semester</option>
-                                    <option value="101">Akhir Semester</option>
-                                    <?php
-                                    $sumatif = $this->db2->from("sumatif")
-                                        ->where("sumatif.sekolah_id", 1)
-                                        ->get();
-                                    // echo $this->db2->last_query();
-                                    foreach ($sumatif->result() as $row) { ?>
-                                        <option value="<?= $row->sumatif_id; ?>"><?= $row->sumatif_name; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Kelas</label>
-                                <select class="form-control" id="tambah-kelas" name="tambah-kelas">
-                                    <option value="">Pilih Kelas</option>
-                                    <?php
-                                    $kelas = $this->db2
-                                        ->from('kelas')
-                                        ->order_by('kelas_name', 'ASC')
-                                        ->get()
-                                        ->result_array();
-
-                                    foreach ($kelas as $row): ?>
-                                        <option
-                                            value="<?php echo $row['kelas_id']; ?>"
-                                            data-nama="<?php echo htmlspecialchars($row['kelas_name'], ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?php echo htmlspecialchars($row['kelas_name'], ENT_QUOTES, 'UTF-8'); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                            
                             <div class="form-group">
                                 <label>Sinkron Mata Pelajaran</label>
                                 <select class="form-control" id="tambah-matpel" name="tambah-matpel">
@@ -222,49 +180,8 @@
                     <div class="row-fluid">
                         <div class="box-body">
                             <div id="form-pesan-edit"></div>
-                            <div class="form-group">
-                                <label>Semester</label>
-                                <select class="form-control" id="edit-semester" name="edit-semester">
-                                    <option value="1">Ganjil</option>
-                                    <option value="2">Genap</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Sumatif</label>
-                                <select class="form-control" id="edit-sumatif" name="edit-sumatif">
-                                    <option value="">Choose Sumatif</option>
-                                    <option value="100">Tengah Semester</option>
-                                    <option value="101">Akhir Semester</option>
-                                    <?php
-                                    $sumatif = $this->db2->from("sumatif")
-                                        ->where("sumatif.sekolah_id", 1)
-                                        ->get();
-                                    // echo $this->db2->last_query();
-                                    foreach ($sumatif->result() as $row) { ?>
-                                        <option value="<?= $row->sumatif_id; ?>"><?= $row->sumatif_name; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Kelas</label>
-                                <select class="form-control" id="edit-kelas" name="edit-kelas">
-                                    <option value="">Pilih Kelas</option>
-                                    <?php
-                                    $kelas = $this->db2
-                                        ->from('kelas')
-                                        ->order_by('kelas_name', 'ASC')
-                                        ->get()
-                                        ->result_array();
-
-                                    foreach ($kelas as $row): ?>
-                                        <option
-                                            value="<?php echo $row['kelas_id']; ?>"
-                                            data-nama="<?php echo htmlspecialchars($row['kelas_name'], ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?php echo htmlspecialchars($row['kelas_name'], ENT_QUOTES, 'UTF-8'); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                            
+                            
                             <div class="form-group">
                                 <label>Sinkron Mata Pelajaran</label>
                                 <select class="form-control" id="edit-matpel" name="edit-matpel">
@@ -386,14 +303,7 @@
                 $('#edit-topik').val(data.topik);
                 $('#edit-deskripsi').val(data.deskripsi);
 
-                // Semester
-                $('#edit-semester').val(data.semester);
-
-                // Sumatif
-                $('#edit-sumatif').val(data.sumatif);
-
-                // Kelas
-                $('#edit-kelas').val(data.kelas);
+                
 
                 // Mata pelajaran
                 $('#edit-matpel').val(data.matpel);
