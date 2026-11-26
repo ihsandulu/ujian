@@ -107,6 +107,22 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label>Sumatif</label>
+                                <select class="form-control" id="tambah-sumatif" name="tambah-sumatif">
+                                    <option value="">Choose Sumatif</option>
+                                    <option value="100">Tengah Semester</option>
+                                    <option value="101">Akhir Semester</option>
+                                    <?php
+                                    $sumatif = $this->db2->from("sumatif")
+                                        ->where("sumatif.sekolah_id", 1)
+                                        ->get();
+                                    // echo $this->db2->last_query();
+                                    foreach ($sumatif->result() as $row) { ?>
+                                        <option value="<?= $row->sumatif_id; ?>"><?= $row->sumatif_name; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label>Kelas</label>
                                 <select class="form-control" id="tambah-kelas" name="tambah-kelas">
                                     <option value="">Pilih Kelas</option>
@@ -214,6 +230,22 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label>Sumatif</label>
+                                <select class="form-control" id="edit-sumatif" name="edit-sumatif">
+                                    <option value="">Choose Sumatif</option>
+                                    <option value="100">Tengah Semester</option>
+                                    <option value="101">Akhir Semester</option>
+                                    <?php
+                                    $sumatif = $this->db2->from("sumatif")
+                                        ->where("sumatif.sekolah_id", 1)
+                                        ->get();
+                                    // echo $this->db2->last_query();
+                                    foreach ($sumatif->result() as $row) { ?>
+                                        <option value="<?= $row->sumatif_id; ?>"><?= $row->sumatif_name; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label>Kelas</label>
                                 <select class="form-control" id="edit-kelas" name="edit-kelas">
                                     <option value="">Pilih Kelas</option>
@@ -254,7 +286,7 @@
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                             <script>
+                            <script>
                                 $(document).ready(function() {
                                     $('#edit-matpel').on('change', function() {
                                         var namamatpel = $(this).find('option:selected').attr('data-nama') || '';
@@ -337,21 +369,53 @@
         $('#tambah-topik').focus();
     }
 
+
     function edit(id) {
         $("#modal-proses").modal('show');
-        $.getJSON('<?php echo site_url() . '/' . $url; ?>/get_by_id/' + id + '', function(data) {
+
+        $.getJSON('<?php echo site_url() . '/' . $url; ?>/get_by_id/' + id, function(data) {
+
             if (data.data == 1) {
+
+                // Identitas
                 $('#edit-id').val(data.id);
-                $('#edit-topik').val(data.topik);
+                $('#edit-modul-id').val(data.modul_id);
                 $('#edit-topik-asli').val(data.topik);
+
+                // Nama topik dan deskripsi
+                $('#edit-topik').val(data.topik);
                 $('#edit-deskripsi').val(data.deskripsi);
-                $('#edit-modul-id').val('');
+
+                // Semester
+                $('#edit-semester').val(data.semester);
+
+                // Sumatif
+                $('#edit-sumatif').val(data.sumatif);
+
+                // Kelas
+                $('#edit-kelas').val(data.kelas);
+
+                // Mata pelajaran
+                $('#edit-matpel').val(data.matpel);
+
+                // Status
+                $('#edit-status').val(
+                    data.status == 1 ? 'AKTIF' : 'TIDAK AKTIF'
+                );
+
+                // Pilihan default
+                $('#edit-pilihan').val('');
+
+                // Bersihkan pesan sebelumnya
+                $('#form-pesan-edit').html('');
 
                 $("#modal-edit").modal("show");
             }
+
             $("#modal-proses").modal('hide');
         });
     }
+
 
     $(function() {
         $('#btn-edit-pilih').click(function(event) {

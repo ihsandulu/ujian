@@ -55,6 +55,7 @@ class Modul_topik extends Member_Controller
 		$this->form_validation->set_rules('tambah-modul-id', 'ID Modul', 'required|strip_tags');
 		$this->form_validation->set_rules('tambah-deskripsi', 'Deskripsi', 'required|strip_tags');
 		$this->form_validation->set_rules('tambah-status', 'Status', 'required|strip_tags');
+		$this->form_validation->set_rules('tambah-sumatif', 'Sumatif', 'required|strip_tags');
 
 		if ($this->form_validation->run() == TRUE) {
 			$data['topik_modul_id'] = $this->input->post('tambah-modul-id', true);
@@ -64,6 +65,7 @@ class Modul_topik extends Member_Controller
 			$data['kelas_id'] = $this->input->post('tambah-kelas', true);
 			$data['topik_detail'] = $this->input->post('tambah-deskripsi', true);
 			$data['topik_aktif'] = 1;
+			$data['sumatif_id'] = $this->input->post('tambah-sumatif', true);
 
 			//if($this->cbt_topik_model->count_by_kolom('topik_nama', $data['topik_nama'])->row()->hasil>0){
 			if ($this->cbt_topik_model->count_by_topik_modul($data['topik_nama'], $data['topik_modul_id'])->row()->hasil > 0) {
@@ -83,22 +85,33 @@ class Modul_topik extends Member_Controller
 		echo json_encode($status);
 	}
 
+
 	function get_by_id($id = null)
 	{
 		$data['data'] = 0;
+
 		if (!empty($id)) {
 			$query = $this->cbt_topik_model->get_by_kolom('topik_id', $id);
+
 			if ($query->num_rows() > 0) {
-				$query = $query->row();
+				$row = $query->row();
+
 				$data['data'] = 1;
-				$data['id'] = $query->topik_id;
-				$data['topik'] = $query->topik_nama;
-				$data['deskripsi'] = $query->topik_detail;
-				$data['status'] = $query->topik_aktif;
+				$data['id'] = $row->topik_id;
+				$data['modul_id'] = $row->topik_modul_id;
+				$data['topik'] = $row->topik_nama;
+				$data['matpel'] = $row->matpel_id;
+				$data['kelas'] = $row->kelas_id;
+				$data['semester'] = $row->nilai_semester;
+				$data['deskripsi'] = $row->topik_detail;
+				$data['status'] = $row->topik_aktif;
+				$data['sumatif'] = $row->sumatif_id;
 			}
 		}
+
 		echo json_encode($data);
 	}
+
 
 	/**
 	 * Menghapus topik yang dipilih
@@ -168,6 +181,7 @@ class Modul_topik extends Member_Controller
 		$this->form_validation->set_rules('edit-deskripsi', 'Deskripsi', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-pilihan', 'Pilihan', 'required|strip_tags');
 		$this->form_validation->set_rules('edit-topik-asli', 'Nama Topik', 'required|strip_tags');
+		$this->form_validation->set_rules('edit-sumatif', 'Sumatif', 'required|strip_tags');
 
 		if ($this->form_validation->run() == TRUE) {
 			$pilihan = $this->input->post('edit-pilihan', true);
@@ -202,6 +216,7 @@ class Modul_topik extends Member_Controller
 				$data['nilai_semester'] = $this->input->post('edit-semester', true);
 				$data['topik_nama'] = $this->input->post('edit-topik', true);
 				$data['topik_detail'] = $this->input->post('edit-deskripsi', true);
+				$data['sumatif_id'] = $this->input->post('edit-sumatif', true);
 
 				if ($topik_asli != $data['topik_nama']) {
 					//if($this->cbt_topik_model->count_by_kolom('topik_nama', $data['topik_nama'])->row()->hasil>0){
@@ -275,6 +290,20 @@ class Modul_topik extends Member_Controller
 			} else {
 				$sem = "";
 			}
+
+			if ($temp->sumatif_id == 100) {
+				$sum = "Tengah Semester";
+			} else if ($temp->sumatif_id == 101) {
+				$sum = "Akhir Semester";
+			} else {
+				$this->db2->select('sumatif_name')
+					->from('sumatif')
+					->where('sumatif_id', $temp->sumatif_id);
+				$sum = "";
+				foreach ($this->db2->get()->result() as $row) {
+					$sum = $row->sumatif_name;
+				}
+			}
 			$this->db2->select('kelas_name')
 				->from('kelas')
 				->where('kelas_id', $temp->kelas_id);
@@ -282,7 +311,7 @@ class Modul_topik extends Member_Controller
 			foreach ($this->db2->get()->result() as $row) {
 				$kelasname = $row->kelas_name;
 			}
-			$record[] = $temp->topik_nama . " " . $sem . " " . $kelasname;
+			$record[] = $temp->topik_nama . " " . $sem . " " . $sum . " " . $kelasname;
 			if ($temp->matpel_id > 0) {
 				$validasi = '<span class="label label-success">Validated</span>';
 			} else {
