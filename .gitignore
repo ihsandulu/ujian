@@ -4,3 +4,4 @@ application/config/config.php
 .htaccess
 vendor/
 composer.lock
+/public/uploads/

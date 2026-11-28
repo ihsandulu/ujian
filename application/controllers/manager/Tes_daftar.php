@@ -171,8 +171,14 @@ class Tes_daftar extends Member_Controller
 			$record[] = isset($nilaisemester[$temp->nilai_semester])
 				? $nilaisemester[$temp->nilai_semester] : '-';
 
-			$record[] = isset($sumatif_list[$temp->sumatif_id])
-				? $sumatif_list[$temp->sumatif_id] : '-';
+			if ($temp->sumatif_id == 100) {
+				$record[] = 'Tengah Semester';
+			} else if ($temp->sumatif_id == 101) {
+				$record[] = 'Akhir Semester';
+			} else {
+				$record[] = isset($sumatif_list[$temp->sumatif_id])
+					? $sumatif_list[$temp->sumatif_id] : '-';
+			}
 
 			$record[] = $temp->tes_nama;
 			$record[] = $temp->tes_max_score;
