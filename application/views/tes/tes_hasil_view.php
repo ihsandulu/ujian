@@ -278,7 +278,8 @@
             }, function(response) {
 
                 // Proses response dari controller di sini
-                alert(response);
+                var hasil = JSON.parse(response);
+                alert(hasil.pesan);
 
             }).fail(function() {
                 alert('Terjadi kesalahan saat mengambil data.');
