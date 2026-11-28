@@ -36,6 +36,174 @@ class Peserta_daftar extends Member_Controller
 		$this->template->display_admin($this->kelompok . '/peserta_daftar_view', 'Daftar Peserta', $data);
 	}
 
+
+	public function cari_nisn()
+	{
+		$db2 = $this->load->database('database_kedua', TRUE);
+
+		$search = $this->input->get('search', TRUE);
+
+		$data = $db2
+			->select('user_nisn, user_name')
+			->from('user')
+			->like('user_nisn', $search)
+			->where('sekolah_id', 1)
+			->limit(20)
+			->get()
+			->result();
+
+		$hasil = array();
+
+		foreach ($data as $row) {
+			$hasil[] = array(
+				'id'   => $row->user_nisn,
+				'text' => $row->user_nisn . ' - ' . $row->user_name
+			);
+		}
+
+		echo json_encode($hasil);
+	}
+
+
+
+	public function verifikasi_nisn()
+	{
+		$db2 = $this->load->database('database_kedua', TRUE);
+
+		$nisn = trim($this->input->post('nisn', TRUE));
+		$mode = $this->input->post('mode', TRUE);
+		$edit_id = $this->input->post('edit_id', TRUE);
+
+		if (empty($nisn)) {
+			echo json_encode(array(
+				'status'  => false,
+				'message' => 'NISN belum dipilih.'
+			));
+			return;
+		}
+
+		// =========================================
+		// CEK DUPLIKASI NISN DI DATABASE 1
+		// =========================================
+
+		if ($mode == 'tambah') {
+
+			// Tambah: NISN tidak boleh sudah digunakan
+			$cek_nisn = $this->db
+				->where('user_nisn', $nisn)
+				->get('cbt_user')
+				->num_rows();
+
+			if ($cek_nisn > 0) {
+				echo json_encode(array(
+					'status'  => false,
+					'message' => 'NISN ' . $nisn . ' sudah terdaftar sebagai peserta. Verifikasi ditolak.'
+				));
+				return;
+			}
+		} elseif ($mode == 'edit') {
+
+			if (empty($edit_id)) {
+				echo json_encode(array(
+					'status'  => false,
+					'message' => 'ID peserta tidak ditemukan.'
+				));
+				return;
+			}
+
+			// Ambil NISN lama peserta yang sedang diedit
+			$peserta_lama = $this->db
+				->select('user_nisn')
+				->where('user_id', $edit_id)
+				->get('cbt_user')
+				->row();
+
+			if (!$peserta_lama) {
+				echo json_encode(array(
+					'status'  => false,
+					'message' => 'Data peserta yang diedit tidak ditemukan.'
+				));
+				return;
+			}
+
+			// Jika NISN berubah, cek apakah sudah digunakan peserta lain
+			if ($nisn != $peserta_lama->user_nisn) {
+
+				$cek_nisn = $this->db
+					->where('user_nisn', $nisn)
+					->get('cbt_user')
+					->num_rows();
+
+				if ($cek_nisn > 0) {
+					echo json_encode(array(
+						'status'  => false,
+						'message' => 'NISN ' . $nisn . ' sudah digunakan peserta lain. Verifikasi ditolak.'
+					));
+					return;
+				}
+			}
+		} else {
+
+			echo json_encode(array(
+				'status'  => false,
+				'message' => 'Mode verifikasi tidak valid.'
+			));
+			return;
+		}
+
+		// =========================================
+		// AMBIL DATA USER DARI DATABASE 2
+		// =========================================
+
+		$user = $db2
+			->where('user_nisn', $nisn)
+			->where('sekolah_id', 1)
+			->get('user')
+			->row();
+
+		if (!$user) {
+			echo json_encode(array(
+				'status'  => false,
+				'message' => 'Data NISN tidak ditemukan di database 2.'
+			));
+			return;
+		}
+
+		// =========================================
+		// KONVERSI KELAS_ID MENJADI GRUP_ID
+		// DATABASE 1
+		// =========================================
+
+		$grup = $this->db
+			->where('kelas_id', $user->kelas_id)
+			->get('cbt_user_grup')
+			->row();
+
+		if (!$grup) {
+			echo json_encode(array(
+				'status'  => false,
+				'message' => 'Kelas ID ' . $user->kelas_id . ' tidak ditemukan di cbt_user_grup database 1.'
+			));
+			return;
+		}
+
+		// =========================================
+		// KIRIM DATA HASIL VERIFIKASI
+		// =========================================
+
+		echo json_encode(array(
+			'status' => true,
+			'data' => array(
+				'username'    => $user->user_nisn,
+				'tahunajaran' => $user->user_tahunajaran,
+				'nama'        => $user->user_name,
+				'group_id'    => $grup->grup_id
+			)
+		));
+	}
+
+
+
 	function tambah()
 	{
 		$this->load->library('form_validation');
@@ -129,6 +297,7 @@ class Peserta_daftar extends Member_Controller
 		echo json_encode($status);
 	}
 
+
 	function edit()
 	{
 		$this->load->library('form_validation');
@@ -158,23 +327,39 @@ class Peserta_daftar extends Member_Controller
 			$pilihan = $this->input->post('edit-pilihan', true);
 			$id = $this->input->post('edit-id', true);
 
-			if ($pilihan == 'hapus') { //hapus
+			if ($pilihan == 'hapus') {
 				$this->cbt_user_model->delete('user_id', $id);
 				$status['status'] = 1;
 				$status['pesan'] = 'Data Peserta berhasil dihapus !';
-			} else if ($pilihan == 'simpan') { //simpan
-				$data['user_password'] = $this->input->post('edit-password', true);
-				$data['user_firstname'] = $this->input->post('edit-nama', true);
-				$data['user_nisn'] = $this->input->post('edit-nisn', true);
-				$data['user_tahunajaran'] = $this->input->post('edit-tahunajaran', true);
-				$data['user_email'] = $this->input->post('edit-email', true);
-				$data['user_grup_id'] = $this->input->post('edit-group', true);
-				$data['user_detail'] = $this->input->post('edit-detail', true);
+			} else if ($pilihan == 'simpan') {
 
-				$this->cbt_user_model->update('user_id', $id, $data);
+				// Ambil NISN yang dikirim dari form
+				$nisn = $this->input->post('edit-nisn', true);
 
-				$status['status'] = 1;
-				$status['pesan'] = 'Data Peserta berhasil disimpan ';
+				// Periksa apakah NISN sudah digunakan peserta lain
+				$cek_nisn = $this->db
+					->where('user_nisn', $nisn)
+					->where('user_id !=', $id)
+					->count_all_results('cbt_user');
+
+				if ($cek_nisn > 0) {
+					$status['status'] = 0;
+					$status['pesan'] = 'NISN sudah digunakan oleh peserta lain.';
+				} else {
+					$data['user_password'] = $this->input->post('edit-password', true);
+					$data['user_firstname'] = $this->input->post('edit-nama', true);
+					$data['user_nisn'] = $nisn;
+					$data['user_name'] = $this->input->post('edit-username', true);
+					$data['user_tahunajaran'] = $this->input->post('edit-tahunajaran', true);
+					$data['user_email'] = $this->input->post('edit-email', true);
+					$data['user_grup_id'] = $this->input->post('edit-group', true);
+					$data['user_detail'] = $this->input->post('edit-detail', true);
+
+					$this->cbt_user_model->update('user_id', $id, $data);
+
+					$status['status'] = 1;
+					$status['pesan'] = 'Data Peserta berhasil diperbarui.';
+				}
 			}
 		} else {
 			$status['status'] = 0;
@@ -183,6 +368,7 @@ class Peserta_daftar extends Member_Controller
 
 		echo json_encode($status);
 	}
+
 
 	function get_datatable()
 	{

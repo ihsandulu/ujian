@@ -127,28 +127,24 @@
                     <div class="row-fluid">
                         <div class="box-body">
                             <div id="form-pesan"></div>
-                            <div class="form-group">
-                                <label>Username</label>
-                                <input type="text" class="form-control" id="tambah-username" name="tambah-username" placeholder="Username Peserta">
-                            </div>
+
                             <div class="form-group">
                                 <label>NISN</label>
-                                <input type="text" class="form-control" id="tambah-nisn" name="tambah-nisn" placeholder="NISN Peserta">
+                                <div class="input-group">
+                                    <select class="form-control" id="tambah-nisn" name="tambah-nisn" style="width: 100%;">
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary" id="btn-verifikasi-nisn1">
+                                            Verifikasi
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
+
 
                             <div class="form-group">
                                 <label>Password</label>
                                 <input type="password" class="form-control" id="tambah-password" name="tambah-password">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Tahun Ajaran</label>
-                                <input type="number" min="2024" max="<?= date('Y'); ?>" class="form-control" id="tambah-tahunajaran" name="tambah-tahunajaran" placeholder="Tahun Ajaran Peserta">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Nama Lengkap</label>
-                                <input type="text" class="form-control" id="tambah-nama" name="tambah-nama" placeholder="Nama Lengkap Peserta">
                             </div>
 
                             <div class="form-group">
@@ -163,12 +159,32 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" class="form-control" id="tambah-username"
+                                    name="tambah-username" placeholder="Username Peserta" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tahun Ajaran</label>
+                                <input type="number" min="2024" max="<?= date('Y'); ?>"
+                                    class="form-control" id="tambah-tahunajaran"
+                                    name="tambah-tahunajaran" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" class="form-control" id="tambah-nama"
+                                    name="tambah-nama" placeholder="Nama Lengkap Peserta" readonly>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Group</label>
-                                <select name="tambah-group" id="tambah-group" class="form-control input-sm">
+                                <select id="tambah-group" class="form-control input-sm" disabled>
                                     <?php if (!empty($select_group)) {
                                         echo $select_group;
                                     } ?>
                                 </select>
+                                <input type="hidden" name="tambah-group" id="tambah-group-hidden">
                             </div>
                         </div>
                     </div>
@@ -195,19 +211,18 @@
                     <div class="row-fluid">
                         <div class="box-body">
                             <div id="form-pesan-edit"></div>
-                            <div class="form-group">
-                                <label>Username</label>
-                                <input type="hidden" name="edit-id" id="edit-id">
-                                <input type="hidden" name="edit-pilihan" id="edit-pilihan">
-                                <input type="text" class="form-control" id="edit-username" name="edit-username" readonly>
-                            </div>
+
                             <div class="form-group">
                                 <label>NISN</label>
-                                <input type="text" class="form-control" id="edit-nisn" name="edit-nisn">
-                            </div>
-                            <div class="form-group">
-                                <label>Tahun Ajaran</label>
-                                <input type="number" min="2024" max="<?= date('Y') ?>" class="form-control" id="edit-tahunajaran" name="edit-tahunajaran">
+                                <div class="input-group">
+                                    <select class="form-control" id="edit-nisn" name="edit-nisn" style="width: 100%;">
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary" id="btn-verifikasi-nisn2">
+                                            Verifikasi
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -218,11 +233,6 @@
                                         <button class="btn btn-flat" id="btn-show-password" title="Tampilkan Password" type="button"><i id="icon-show-password" class="fa fa-eye"></i></button>
                                     </span>
                                 </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Nama Lengkap</label>
-                                <input type="text" class="form-control" id="edit-nama" name="edit-nama" placeholder="Nama Lengkap Peserta">
                             </div>
 
                             <div class="form-group">
@@ -237,12 +247,33 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Username</label>
+                                <input type="hidden" name="edit-id" id="edit-id">
+                                <input type="hidden" name="edit-pilihan" id="edit-pilihan">
+                                <input type="text" class="form-control" id="edit-username" name="edit-username" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tahun Ajaran</label>
+                                <input type="number" min="2024" max="<?= date('Y') ?>"
+                                    class="form-control" id="edit-tahunajaran"
+                                    name="edit-tahunajaran" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" class="form-control" id="edit-nama"
+                                    name="edit-nama" placeholder="Nama Lengkap Peserta" readonly>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Group</label>
-                                <select name="edit-group" id="edit-group" class="form-control input-sm">
+                                <select id="edit-group" class="form-control input-sm" disabled>
                                     <?php if (!empty($select_group)) {
                                         echo $select_group;
                                     } ?>
                                 </select>
+                                <input type="hidden" name="edit-group" id="edit-group-hidden">
                             </div>
                             <p>NB : Peserta yang dihapus, maka semua hasil tes akan ikut terhapus !</p>
                         </div>
@@ -282,13 +313,16 @@
 
     function tambah() {
         $('#form-pesan').html('');
+
         $('#tambah-username').val('');
-        $('#tambah-nisn').val('');
+        $('#tambah-nisn').val(null).trigger('change');
         $('#tambah-tahunajaran').val('');
         $('#tambah-password').val('');
         $('#tambah-nama').val('');
         $('#tambah-email').val('');
         $('#tambah-detail').val('');
+        $('#tambah-group').val('');
+        $('#tambah-group-hidden').val('');
 
         $("#modal-tambah").modal("show");
         $('#tambah-username').focus();
@@ -300,14 +334,20 @@
         $.getJSON('<?php echo site_url() . '/' . $url; ?>/get_by_id/' + id + '', function(data) {
             if (data.data == 1) {
                 $('#edit-id').val(data.id);
+
+                // Tampilkan NISN pada Select2
+                var option = new Option(data.nisn, data.nisn, true, true);
+                $('#edit-nisn').empty().append(option).trigger('change');
+
                 $('#edit-username').val(data.username);
-                $('#edit-nisn').val(data.nisn);
                 $('#edit-tahunajaran').val(data.tahunajaran);
                 $('#edit-password').val(data.password);
                 $('#edit-nama').val(data.nama);
                 $('#edit-email').val(data.email);
                 $('#edit-detail').val(data.detail);
+
                 $('#edit-group').val(data.group);
+                $('#edit-group-hidden').val(data.group);
 
                 $("#modal-edit").modal("show");
             }
@@ -432,7 +472,7 @@
                     "bSearchable": false,
                     "bSortable": false,
                     "sWidth": "20px"
-                },{
+                }, {
                     "bSearchable": false,
                     "bSortable": false,
                     "sWidth": "20px"
@@ -480,5 +520,139 @@
                 });
             }
         });
+    });
+
+    $(document).ready(function() {
+        // Pencarian Tambah NISN dari database 2
+        $('#tambah-nisn').select2({
+            dropdownParent: $('#modal-tambah'),
+            width: '100%',
+            placeholder: 'Ketik NISN...',
+            minimumInputLength: 3,
+            allowClear: true,
+            ajax: {
+                url: '<?php echo site_url($url); ?>/cari_nisn',
+                dataType: 'json',
+                delay: 300,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Verifikasi NISN
+        $('#btn-verifikasi-nisn1').on('click', function() {
+
+            var nisn = $('#tambah-nisn').val();
+
+            if (!nisn) {
+                alert('Silakan pilih NISN terlebih dahulu.');
+                return;
+            }
+
+            $.ajax({
+                url: '<?php echo site_url($url); ?>/verifikasi_nisn',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    nisn: nisn,
+                    mode: 'tambah'
+                },
+                success: function(res) {
+
+                    if (!res.status) {
+                        alert(res.message);
+                        return;
+                    }
+
+                    $('#tambah-username').val(res.data.username);
+                    $('#tambah-tahunajaran').val(res.data.tahunajaran);
+                    $('#tambah-nama').val(res.data.nama);
+
+                    $('#tambah-group').val(res.data.group_id);
+                    $('#tambah-group-hidden').val(res.data.group_id);
+
+                    alert('NISN berhasil diverifikasi.');
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat memverifikasi NISN.');
+                }
+            });
+
+        });
+
+        // Pencarian Edit NISN dari database 2
+        $('#edit-nisn').select2({
+            placeholder: 'Ketik NISN...',
+            minimumInputLength: 3,
+            allowClear: true,
+            ajax: {
+                url: '<?php echo site_url($url); ?>/cari_nisn',
+                dataType: 'json',
+                delay: 300,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Verifikasi NISN
+        $('#btn-verifikasi-nisn2').on('click', function() {
+
+            var nisn = $('#edit-nisn').val();
+
+            if (!nisn) {
+                alert('Silakan pilih NISN terlebih dahulu.');
+                return;
+            }
+
+            $.ajax({
+                url: '<?php echo site_url($url); ?>/verifikasi_nisn',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    nisn: nisn,
+                    mode: 'edit',
+                    edit_id: $('#edit-id').val()
+                },
+                success: function(res) {
+
+                    if (!res.status) {
+                        alert(res.message);
+                        return;
+                    }
+
+                    $('#edit-username').val(res.data.username);
+                    $('#edit-tahunajaran').val(res.data.tahunajaran);
+                    $('#edit-nama').val(res.data.nama);
+
+                    $('#edit-group').val(res.data.group_id);
+                    $('#edit-group-hidden').val(res.data.group_id);
+
+                    alert('NISN berhasil diverifikasi.');
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat memverifikasi NISN.');
+                }
+            });
+
+        });
+
     });
 </script>

@@ -54,6 +54,7 @@ class Peserta_import extends Member_Controller
         $this->template->display_admin($this->kelompok . '/peserta_import_view', 'Import Peserta', $data);
     }
 
+
     function import_file($inputfile)
     {
         $this->load->library('excel');
@@ -62,86 +63,103 @@ class Peserta_import extends Member_Controller
         $excel = PHPExcel_IOFactory::load($inputFileName);
         $worksheet = $excel->getSheet(0);
         $highestRow = $worksheet->getHighestRow();
+
+        $db2 = $this->load->database('database_kedua', TRUE);
+
         $pesan = '<div class="alert alert-info alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <h4><i class="icon fa fa-info"></i> Informasi!</h4>';
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-info"></i> Informasi!</h4>';
 
-        if ($highestRow > 2) {
-            $jmldatasukses = 0;
-            $jmldataerror = 0;
-            $row = 2;
-            $kosong = 0;
-            while ($kosong < 4) {
-                $kosong = 0;
-                $kolom1 = $worksheet->getCellByColumnAndRow(1, $row)->getValue(); //username
-                $kolom2 = $worksheet->getCellByColumnAndRow(2, $row)->getValue(); //password
-                $kolom3 = ucwords(addslashes($worksheet->getCellByColumnAndRow(3, $row)->getValue())); //nama
-                $kolom4 = $worksheet->getCellByColumnAndRow(4, $row)->getValue(); //email
-                $kolom5 = $worksheet->getCellByColumnAndRow(5, $row)->getValue(); //group
-                $kolom6 = $worksheet->getCellByColumnAndRow(6, $row)->getValue(); //keterangan
-                $kolom7 = $worksheet->getCellByColumnAndRow(7, $row)->getValue(); //nisn
-                $kolom8 = $worksheet->getCellByColumnAndRow(8, $row)->getValue(); //tahun ajaran
+        $jmldatasukses = 0;
+        $jmldataerror = 0;
+        $jumlahbaris = 0;
 
-                if (empty($kolom1)) {
-                    $kosong++;
-                }
-                if (empty($kolom2)) {
-                    $kosong++;
-                }
-                if (empty($kolom3)) {
-                    $kosong++;
-                }
-                if (empty($kolom5)) {
-                    $kosong++;
-                }
-                if (empty($kolom7)) {
-                    $kosong++;
-                }
-                if (empty($kolom8)) {
-                    $kosong++;
+        if ($highestRow >= 2) {
+
+            for ($row = 2; $row <= $highestRow; $row++) {
+
+                // Urutan Excel: NISN, Password, Email, Keterangan
+                $nisn = trim((string) $worksheet->getCellByColumnAndRow(0, $row)->getFormattedValue());
+                $password = trim((string) $worksheet->getCellByColumnAndRow(1, $row)->getValue());
+                $email = trim((string) $worksheet->getCellByColumnAndRow(2, $row)->getValue());
+                $detail = trim((string) $worksheet->getCellByColumnAndRow(3, $row)->getValue());
+
+                // Lewati baris yang seluruh kolomnya kosong
+                if ($nisn == '' && $password == '' && $email == '' && $detail == '') {
+                    continue;
                 }
 
-                if ($kosong == 0) {
-                    if ($this->cbt_user_grup_model->count_by_kolom('grup_nama', $kolom5)->row()->hasil > 0) {
-                        if ($this->cbt_user_model->count_by_kolom('user_name', $kolom1)->row()->hasil > 0) {
-                            $pesan = $pesan . $kolom1 . ' - ' . $kolom3 . ' sudah digunakan <br>';
-                            $jmldataerror++;
-                        } else if (!empty($kolom7) && $this->cbt_user_model->count_by_kolom('user_nisn', $kolom7)->row()->hasil > 0) {
-                            $pesan = $pesan . 'NISN ' . $kolom7 . ' - ' . $kolom3 . ' sudah digunakan <br>';
-                            $jmldataerror++;
-                        } else {
-                            $data['user_name'] = $kolom1;
-                            $data['user_password'] = $kolom2;
-                            $data['user_email'] = $kolom4;
-                            $data['user_firstname'] = $kolom3;
-                            $data['user_grup_id'] = $this->cbt_user_grup_model->get_by_kolom_limit('grup_nama', $kolom5, 1)->row()->grup_id;
-                            $data['user_detail'] = $kolom6;
-                            $data['user_nisn'] = $kolom7;
-                            $data['user_tahunajaran'] = $kolom8;
+                $jumlahbaris++;
 
-                            $this->cbt_user_model->save($data);
-                            $jmldatasukses++;
-                        }
-                    } else {
-                        $pesan = $pesan . 'Group "' . $kolom5 . '" belum dibuat <br>';
-                        $jmldataerror++;
-                    }
-                } else {
-                    if ($kosong < 4) {
-                        $pesan = $pesan . 'Baris ke  ' . $row . ' GAGAL di simpan : ' . $kolom1 . ' - ' . $kolom3 . '<br>';
-                        $jmldataerror++;
-                    }
+                if ($nisn == '' || $password == '') {
+                    $pesan .= 'Baris ' . $row . ': NISN dan Password wajib diisi.<br>';
+                    $jmldataerror++;
+                    continue;
                 }
 
-                $row++;
+                // Periksa NISN sudah terdaftar di database pertama
+                $cek_nisn = $this->cbt_user_model
+                    ->count_by_kolom('user_nisn', $nisn)->row()->hasil;
+
+                $cek_username = $this->cbt_user_model
+                    ->count_by_kolom('user_name', $nisn)->row()->hasil;
+
+                if ($cek_nisn > 0 || $cek_username > 0) {
+                    $pesan .= 'NISN ' . htmlspecialchars($nisn) . ' sudah digunakan.<br>';
+                    $jmldataerror++;
+                    continue;
+                }
+
+                // Cari data peserta di database kedua
+                $user = $db2
+                    ->where('user_nisn', $nisn)
+                    ->where('sekolah_id', 1)
+                    ->get('user')
+                    ->row();
+
+                if (!$user) {
+                    $pesan .= 'NISN ' . htmlspecialchars($nisn) . ' tidak ditemukan di database sumber.<br>';
+                    $jmldataerror++;
+                    continue;
+                }
+
+                // Cocokkan kelas_id dengan kelas_id pada group CBT
+                $grup = $this->db
+                    ->where('kelas_id', $user->kelas_id)
+                    ->get('cbt_user_grup')
+                    ->row();
+
+                if (!$grup) {
+                    $pesan .= 'Group untuk kelas_id ' . htmlspecialchars($user->kelas_id) . ' belum dibuat.<br>';
+                    $jmldataerror++;
+                    continue;
+                }
+
+                // Simpan peserta
+                $data = array(
+                    'user_name'        => $user->user_nisn,
+                    'user_password'    => $password,
+                    'user_email'       => $email,
+                    'user_firstname'   => $user->user_name,
+                    'user_grup_id'     => $grup->grup_id,
+                    'user_detail'      => $detail,
+                    'user_nisn'        => $user->user_nisn,
+                    'user_tahunajaran' => $user->user_tahunajaran
+                );
+
+                $this->cbt_user_model->save($data);
+                $jmldatasukses++;
             }
-            $pesan = $pesan . '<br>Jumlah data yang berhasil diimport adalah ' . $jmldatasukses . '<br>
-                            Jumlah data yang gagal di dimport adalah ' . $jmldataerror . '<br>
-                            Jumlah total baris yang diproses adalah ' . ($row - 3) . '<br>';
+
+            $pesan .= '<br>
+            Jumlah data yang berhasil diimport adalah ' . $jmldatasukses . '<br>
+            Jumlah data yang gagal diimport adalah ' . $jmldataerror . '<br>
+            Jumlah total baris yang diproses adalah ' . $jumlahbaris . '<br>';
         } else {
-            $pesan = $pesan . 'Tidak Ada Yang Berhasil Di IMPORT. Cek kembali file excel yang dikirim';
+            $pesan .= 'Tidak ada data yang dapat diimport. Periksa kembali file Excel.';
         }
-        $pesan = $pesan . '</div>';
+
+        $pesan .= '</div>';
 
         return $pesan;
     }
